@@ -48,9 +48,9 @@ Our board labels aren't always right. List tickets where you disagreed with the 
 
 If a ticket was ambiguous enough that the right move was to escalate / ask PM / gather more context rather than ship a fix, list it here. We value this signal — picking one interpretation blindly and shipping it can cost more than stopping to ask.
 
-| Ticket  | Who would you ask | What you'd ask                                    |
-| ------- | ----------------- | ------------------------------------------------- |
-| CFG-XXX | e.g. PM / Finance | [The specific question + why you can't answer it] |
+| Ticket  | Who would you ask     | What you'd ask                                                                                                                                                                                                             |
+| ------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CFG-154 | PM / Finance, backend | Does the tier start at 50 (`>=`) or 51 (`>`), and is it 10% or 15%? `CONTEXT.md` and the "Add N more" hint imply `>=` and 10%, but the real backend charges the price, so changing only the UI could show the wrong amount |
 
 ---
 
