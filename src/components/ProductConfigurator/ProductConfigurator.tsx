@@ -574,7 +574,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
           {option.choices?.map((choice, index, choices) => (
             <button
               type="button"
-              key={index}
+              key={choice.id}
               className={`color-swatch ${currentValue === choice.value ? 'selected' : ''}`}
               style={{ backgroundColor: choice.colorHex }}
               onClick={() => handleOptionChange(option.id, choice.value)}
@@ -695,7 +695,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
 
     return (
       <div
-        key={addOn.name}
+        key={addOn.id}
         className={`addon-item ${isSelected ? 'selected' : ''} ${!isAvailable ? 'disabled' : ''}`}
         onClick={() => !readOnly && isAvailable && handleAddOnToggle(addOn.id)}
       >

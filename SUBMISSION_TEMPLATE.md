@@ -19,7 +19,8 @@ List the ticket numbers you worked on, in the order you addressed them:
 7. **CFG-143**: Both suspects from the ticket were real. The resize listener was never removed, and every change downloaded a new preview image because of a `Date.now()` cache-buster. Added the cleanup and dropped the timestamp, so the image is cached.
 8. **CFG-151**: Each error code now maps to a plain-language message with a next step. The raw code is no longer shown.
 9. **CFG-149**: No code change needed. The dimmed price and "Calculating..." were already there but ended early, because `isLoading` cleared after any response. Fixed in CFG-142, verified in the browser. I didn't take Marcus's `'...'`: it would hide the price on every change and shift the layout.
-10. ...
+10. **CFG-156**: No key warnings in the console, and no keys were missing even in the original code. Swatches used the index and add-ons used the name as keys; both now use the id.
+11. ...
 
 ### Tickets I Deprioritized
 
