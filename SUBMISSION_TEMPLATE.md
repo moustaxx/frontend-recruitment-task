@@ -12,7 +12,8 @@ List the ticket numbers you worked on, in the order you addressed them:
 
 1. **CFG-142**: Fixed the price-response guard, which discarded every response. Only the latest request's response is applied now.
 2. **CFG-147**: Fixed share links that crashed the app on non-Latin-1 names or failed to open when the encoded data contained `+`.
-3. ...
+3. **CFG-148**: Fixed the crash when turning off "Include Packaging" with Gift Wrap selected. Dependent add-ons are now removed for every option type.
+4. ...
 
 ### Tickets I Deprioritized
 
@@ -91,12 +92,29 @@ It fixes both bugs in one place (`api.ts`) and keeps old links working. `encodeU
 
 ---
 
+#### Issue 3: Crash when deselecting "Include Packaging"
+
+**Ticket(s):** CFG-148
+
+**What was the bug?**
+`handleOptionChange` removed dependent add-ons only for `select` options. Turning off the `include_packaging` toggle left Gift Wrap selected, and the summary's `availableAddOns.get(id)!` returned `undefined`. The cleanup for `select` also mutated state in place with `splice`.
+
+**How did you find it?**
+Followed the error to the summary, then checked why an unavailable add-on was still selected. Step 2 ("Premium Material") isn't needed to reproduce it.
+
+**How did you fix it?**
+The cleanup now runs for every option type and filters immutably. The summary skips add-ons that aren't available, so a draft or hand-edited share link can't crash it either.
+
+**Why this approach?**
+It fixes the root cause where dependencies change and adds a cheap guard where the crash happened. The component had 4 existing lint errors that blocked the commit, so I fixed them first in a separate commit (see Other Changes).
+
+---
+
 ### Other Changes Made
 
 Brief description of any other modifications:
 
-- [Change 1]
-- [Change 2]
+- Fixed the existing lint errors in `ProductConfigurator`: the share-URL config is read in lazy `useState` initialisers, `shareUrl` is derived with `useMemo`, the empty `catch` in validation now sets an error, and `isDirty` is set in the change handlers. Side effect: Discard no longer shows on a fresh, loaded or shared configuration.
 
 ---
 
@@ -106,15 +124,14 @@ Brief description of any other modifications:
 
 List any issues you noticed but intentionally left:
 
-| Issue                                                                                     | Why I Left It                                                                                                              |
-| ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `PriceResponse.timestamp` is a counter, not a time                                        | Misleading name; the client no longer uses it                                                                              |
-| CFG-147: the configuration name from a share link isn't restored                          | Existing lint errors in the component block any commit touching it                                                         |
-| CFG-147: decoded selections aren't validated against the product                          | Edge case (old or hand-edited links); validation already flags it                                                          |
-| No error boundary around the widget                                                       | Out of scope; worth adding before the demo                                                                                 |
-| Misleading comment in `mockProductSimple` (`10" Large`)                                   | Only option values are encoded, not labels                                                                                 |
-| Effects in the component call `setState` synchronously (URL decode, share URL, `isDirty`) | Causes cascading renders. URL state belongs in lazy `useState` initialisers, the rest should be derived. Separate refactor |
-| Changing the draft name triggers a price refetch                                          | `draftName` is part of `currentConfig`; the price stays correct, but splitting it out belongs in the component             |
+| Issue                                                            | Why I Left It                                                                                                  |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `PriceResponse.timestamp` is a counter, not a time               | Misleading name; the client no longer uses it                                                                  |
+| CFG-147: the configuration name from a share link isn't restored | Out of scope for CFG-147                                                                                       |
+| CFG-147: decoded selections aren't validated against the product | Edge case (old or hand-edited links); validation already flags it                                              |
+| No error boundary around the widget                              | Out of scope; worth adding before the demo                                                                     |
+| Misleading comment in `mockProductSimple` (`10" Large`)          | Only option values are encoded, not labels                                                                     |
+| Changing the draft name triggers a price refetch                 | `draftName` is part of `currentConfig`; the price stays correct, but splitting it out belongs in the component |
 
 ### Potential Improvements for the Future
 

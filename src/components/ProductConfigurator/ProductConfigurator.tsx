@@ -288,24 +288,16 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
       }));
       setIsDirty(true);
 
-      const option = product.options.find((o) => o.id === optionId);
       // Clean up any dependent add-ons whose requirement is no longer met.
-      // Toggles are handled in handleAddOnToggle, so we only need to do this for select options.
-      if (option && option.type === 'select') {
-        const dependentAddOns = product.addOns.filter((a) => a.dependsOn?.optionId === optionId);
+      const unmetAddOnIds = product.addOns
+        .filter((a) => a.dependsOn?.optionId === optionId && value !== a.dependsOn.requiredValue)
+        .map((a) => a.id);
 
-        for (const addOn of dependentAddOns) {
-          if (addOn.dependsOn && value !== addOn.dependsOn.requiredValue) {
-            const index = selectedAddOns.indexOf(addOn.id);
-            if (index > -1) {
-              selectedAddOns.splice(index, 1);
-              setSelectedAddOns(selectedAddOns);
-            }
-          }
-        }
+      if (unmetAddOnIds.length > 0) {
+        setSelectedAddOns((prev) => prev.filter((id) => !unmetAddOnIds.includes(id)));
       }
     },
-    [product.options, product.addOns, selectedAddOns],
+    [product.addOns],
   );
 
   const handleAddOnToggle = useCallback(
@@ -928,9 +920,9 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
                 <span>Add-ons ({selectedAddOns.length}):</span>
                 <span>
                   {selectedAddOns
-                    .map((id) => {
-                      const addOn = availableAddOns.get(id)!;
-                      return formatPrice(addOn.price, product.currency);
+                    .flatMap((id) => {
+                      const addOn = availableAddOns.get(id);
+                      return addOn ? [formatPrice(addOn.price, product.currency)] : [];
                     })
                     .join(' + ')}
                 </span>
