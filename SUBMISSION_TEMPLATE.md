@@ -1,8 +1,8 @@
-# Submission: [Your Name]
+# Submission: Maciej Bednarczyk
 
 ## Time Spent
 
-Total time: **\_\_** (approximate)
+Total time: **3.5h** (approximate)
 
 ## Ticket Triage
 
@@ -13,14 +13,13 @@ List the ticket numbers you worked on, in the order you addressed them:
 1. **CFG-142**: Fixed the price-response guard, which discarded every response. Only the latest request's response is applied now.
 2. **CFG-147**: Fixed share links that crashed the app on non-Latin-1 names or failed to open when the encoded data contained `+`.
 3. **CFG-148**: Fixed the crash when turning off "Include Packaging" with Gift Wrap selected. Dependent add-ons are now removed for every option type.
-4. **CFG-158**: Marcus's fix would be a no-op (`product` is already stable, `currentConfig` already memoized). The real cause: typing a draft name re-ran validation, preview and price. These now ignore the name.
+4. **CFG-158**: Marcus's fix would be a no-op (`product` is already stable, `currentConfig` already memoized). The real cause: typing a draft name re-ran validation, preview and price. They now ignore the name.
 5. **CFG-145**: Added a Ctrl/Cmd+Enter shortcut for Quick Add, shown on the button. Quick Add is now also blocked while the price is recalculating, so it can't add a stale price.
 6. **CFG-152**: Color swatches are now focusable buttons with arrow-key navigation. Modals close on Escape wherever focus is and always return focus to their trigger. Added missing focus styles.
-7. **CFG-143**: Both suspects from the ticket were real. The resize listener was never removed, and every change downloaded a new preview image because of a `Date.now()` cache-buster. Added the cleanup and dropped the timestamp, so the image is cached.
+7. **CFG-143**: Both suspects from the ticket were real. The resize listener was never removed, and every change downloaded a new preview image because of a `Date.now()` cache-buster. Added the cleanup and dropped the timestamp, so the browser caches the image.
 8. **CFG-151**: Each error code now maps to a plain-language message with a next step. The raw code is no longer shown.
-9. **CFG-149**: No code change needed. The dimmed price and "Calculating..." were already there but ended early, because `isLoading` cleared after any response. Fixed in CFG-142, verified in the browser. I didn't take Marcus's `'...'`: it would hide the price on every change and shift the layout.
+9. **CFG-149**: No code change needed. The dimmed price and "Calculating..." were already there but ended early, because `isLoading` cleared after any response. The CFG-142 fix solved this; verified in the browser. I didn't take Marcus's `'...'`: it would hide the price on every change and shift the layout.
 10. **CFG-156**: No key warnings in the console, and no keys were missing even in the original code. Swatches used the index and add-ons used the name as keys; both now use the id.
-11. ...
 
 ### Tickets I Deprioritized
 
@@ -147,7 +146,6 @@ List any issues you noticed but intentionally left:
 | Misleading comment in `mockProductSimple` (`10" Large`)                 | Only option values are encoded, not labels                                                                           |
 | CFG-152: no focus trap in modals                                        | Escape and focus return work; full trap is beyond the audit's list                                                   |
 | CFG-151: the error banner never clears                                  | `setError(null)` is never called, so the banner stays after a successful retry. Needs a decision on when to clear it |
-| Changing the draft name triggers a price refetch                        | `draftName` is part of `currentConfig`; the price stays correct, but splitting it out belongs in the component       |
 
 ### Potential Improvements for the Future
 
@@ -162,8 +160,8 @@ If you had more time, what would you improve?
 
 Questions you would ask in a real scenario:
 
-1. [Question 1]
-2. [Question 2]
+1. What does the TechStyle demo flow look like: which product, which device, which paths? I'd focus testing on exactly that.
+2. Is the widget price binding, or does the backend reprice at checkout? This decides how risky CFG-154 and stale-price add-to-cart really are.
 
 ---
 
@@ -183,15 +181,15 @@ List any assumptions you made to proceed:
 
 ### What went well?
 
-[Your reflection]
+All demo blockers got fixed: price, crash, share links, keyboard access and the Quick Add hotkey. Verifying tickets against the code paid off. It showed that Marcus's CFG-158 fix would change nothing, that the CFG-147 "dev-only flake" was a real bug, and that CFG-149 was already solved by the CFG-142 fix. The fixes stayed small and in atomic commits, each checked in the browser.
 
 ### What was challenging?
 
-[Your reflection]
+With no tests and random API latency, races and loading states could only be verified by scripting the browser. Existing lint errors blocked commits to files I had to touch, so I had to clean those up first. Deciding when to stop and ask (CFG-144/145, CFG-154, unreproducible CFG-146 and CFG-150) took more time than some fixes.
 
 ### What would you do differently with more time?
 
-[Your reflection]
+Add Vitest first and cover discount tiers, share-link encoding, add-on dependencies and the price race. Then split `ProductConfigurator` into smaller components and hooks, and fix the remaining gaps: error boundary, error banner that never clears, header layout on mobile.
 
 ---
 
@@ -206,10 +204,22 @@ Useful things to share:
 - Anything the AI suggested that you rejected — and why
 - Anything you verified manually that the AI got wrong
 
+I used Claude Code. First I had it create a `CLAUDE.md` with the repo context. Then, for each ticket, I read it myself and gave it to Claude to verify against the code. I read its analysis, and only asked for a fix once it held up. I then reviewed the code, making corrections or giving feedback, and verified each fix manually in the browser. It also scripted the browser (Playwright) to reproduce bugs and check fixes.
+
+Where I overrode it:
+
+- **CFG-142**: it first rewrote the whole hook; I asked for a smaller change. It then proposed `eslint-disable` for the existing lint errors, which I rejected. We went back to the rewrite only after confirming that lint blocks any commit touching the file.
+- **CFG-147**: it labelled the bug a demo blocker. I pushed back, since only names with special characters trigger it, and lowered it to High.
+- **CFG-142 assumption**: it explained the "price flashes" report with the loading style. When I asked where that came from, it turned out to be an unchecked guess that didn't match the CSS. I rewrote it as an open assumption.
+- **CFG-145**: testing by hand, I found that Ctrl+Enter opened the alert and closed it right away (the held Enter dismissed it). The shortcut now fires on key release.
+- **Style**: I removed redundant explanatory code comments added by Claude.
+
 ---
 
 ## Additional Notes
 
 Anything else you want us to know:
 
-[Your notes]
+**Reading the history**: commits are atomic and prefixed with the ticket ID, and each fix commit includes its submission entry, so the changes can be reviewed ticket by ticket.
+
+**No branches**: I worked alone, so to save time I committed straight to `main` and skipped feature branches and the usual git flow.
