@@ -34,9 +34,9 @@ List tickets you intentionally skipped and why:
 
 List any tickets where you couldn't proceed due to ambiguity:
 
-| Ticket  | Question                  |
-| ------- | ------------------------- |
-| CFG-XXX | [What you needed to know] |
+| Ticket  | Question                                                                                                                                                                                   |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| CFG-150 | Couldn't reproduce: both products have 5 colors, which fit in one row even at 320px. Which device and product? Need the screenshot. Also, the JS sets `--color-columns` but no CSS uses it |
 
 ### Tickets With a Misleading Priority Label
 
