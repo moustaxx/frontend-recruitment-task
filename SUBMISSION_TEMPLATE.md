@@ -20,10 +20,9 @@ List the ticket numbers you worked on, in the order you addressed them:
 
 List tickets you intentionally skipped and why:
 
-| Ticket  | Reason                 |
-| ------- | ---------------------- |
-| CFG-XXX | [Why you skipped this] |
-| CFG-XXX | [Why you skipped this] |
+| Ticket  | Reason                                                                                                                     |
+| ------- | -------------------------------------------------------------------------------------------------------------------------- |
+| CFG-144 | Rejected: CFG-145 is newer and says TechStyle relies on Quick Add and wants to show it in the demo. Product should confirm |
 
 ### Tickets That Need Clarification
 
