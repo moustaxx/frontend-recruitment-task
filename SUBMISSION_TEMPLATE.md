@@ -17,7 +17,8 @@ List the ticket numbers you worked on, in the order you addressed them:
 5. **CFG-145**: Added a Ctrl/Cmd+Enter shortcut for Quick Add, shown on the button. Quick Add is now also blocked while the price is recalculating, so it can't add a stale price.
 6. **CFG-152**: Color swatches are now focusable buttons with arrow-key navigation. Modals close on Escape wherever focus is and always return focus to their trigger. Added missing focus styles.
 7. **CFG-143**: Both suspects from the ticket were real. The resize listener was never removed, and every change downloaded a new preview image because of a `Date.now()` cache-buster. Added the cleanup and dropped the timestamp, so the image is cached.
-8. ...
+8. **CFG-151**: Each error code now maps to a plain-language message with a next step. The raw code is no longer shown.
+9. ...
 
 ### Tickets I Deprioritized
 
@@ -129,15 +130,16 @@ Brief description of any other modifications:
 
 List any issues you noticed but intentionally left:
 
-| Issue                                                            | Why I Left It                                                                                                  |
-| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `PriceResponse.timestamp` is a counter, not a time               | Misleading name; the client no longer uses it                                                                  |
-| CFG-147: the configuration name from a share link isn't restored | Out of scope for CFG-147                                                                                       |
-| CFG-147: decoded selections aren't validated against the product | Edge case (old or hand-edited links); validation already flags it                                              |
-| No error boundary around the widget                              | Out of scope; worth adding before the demo                                                                     |
-| Misleading comment in `mockProductSimple` (`10" Large`)          | Only option values are encoded, not labels                                                                     |
-| CFG-152: no focus trap in modals                                 | Escape and focus return work; full trap is beyond the audit's list                                             |
-| Changing the draft name triggers a price refetch                 | `draftName` is part of `currentConfig`; the price stays correct, but splitting it out belongs in the component |
+| Issue                                                            | Why I Left It                                                                                                        |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `PriceResponse.timestamp` is a counter, not a time               | Misleading name; the client no longer uses it                                                                        |
+| CFG-147: the configuration name from a share link isn't restored | Out of scope for CFG-147                                                                                             |
+| CFG-147: decoded selections aren't validated against the product | Edge case (old or hand-edited links); validation already flags it                                                    |
+| No error boundary around the widget                              | Out of scope; worth adding before the demo                                                                           |
+| Misleading comment in `mockProductSimple` (`10" Large`)          | Only option values are encoded, not labels                                                                           |
+| CFG-152: no focus trap in modals                                 | Escape and focus return work; full trap is beyond the audit's list                                                   |
+| CFG-151: the error banner never clears                           | `setError(null)` is never called, so the banner stays after a successful retry. Needs a decision on when to clear it |
+| Changing the draft name triggers a price refetch                 | `draftName` is part of `currentConfig`; the price stays correct, but splitting it out belongs in the component       |
 
 ### Potential Improvements for the Future
 

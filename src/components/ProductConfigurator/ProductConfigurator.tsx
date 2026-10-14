@@ -27,6 +27,7 @@ import type {
   PriceBreakdown,
   Draft,
   ValidationResult,
+  ErrorCode,
 } from './types';
 import { ERROR_CODES } from './types';
 import { usePriceCalculation } from '../../hooks/usePriceCalculation';
@@ -79,6 +80,22 @@ const getDefaultSelections = (product: Product): Record<string, string | number 
 
   return selections;
 };
+
+const ERROR_MESSAGES: Record<ErrorCode, string> = {
+  [ERROR_CODES.PRICE_CALC_FAILED]:
+    "We couldn't calculate the price. Change any option to try again, or contact support if it keeps happening.",
+  [ERROR_CODES.VALIDATION_CONFLICT]:
+    "Some of your selections can't be combined. Adjust them and try again.",
+  [ERROR_CODES.NETWORK_TIMEOUT]:
+    'The price is taking too long to load. Check your connection and try again.',
+  [ERROR_CODES.INVALID_QUANTITY]: 'Please enter a valid quantity.',
+  [ERROR_CODES.DEPENDENCY_MISSING]: "This add-on isn't available with your current selections.",
+  [ERROR_CODES.UNKNOWN]:
+    'Something went wrong. Please try again, or contact support if it keeps happening.',
+};
+
+const getErrorMessage = (code: string): string =>
+  ERROR_MESSAGES[code as ErrorCode] ?? ERROR_MESSAGES[ERROR_CODES.UNKNOWN];
 
 const isAddOnAvailable = (
   addOn: AddOn,
@@ -188,6 +205,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
     isLoading: isPriceLoading,
     error: priceError,
   } = usePriceCalculation(baseConfig, product);
+  const errorCode = error || priceError;
 
   const appliedDiscount = getAppliedDiscountPercentage(quantity);
   const nextTier = getNextDiscountTier(quantity);
@@ -918,12 +936,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
         </div>
       </div>
 
-      {(error || priceError) && (
-        <div className="error-message">
-          <div>Something went wrong. Please try again.</div>
-          <div className="error-code">Error: {error || priceError}</div>
-        </div>
-      )}
+      {errorCode && <div className="error-message">{getErrorMessage(errorCode)}</div>}
 
       {validation?.warnings.map((warning, i) => (
         <div key={i} className="validation-warning">
