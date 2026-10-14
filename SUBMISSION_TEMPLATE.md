@@ -26,9 +26,10 @@ List the ticket numbers you worked on, in the order you addressed them:
 
 List tickets you intentionally skipped and why:
 
-| Ticket  | Reason                                                                                                                     |
-| ------- | -------------------------------------------------------------------------------------------------------------------------- |
-| CFG-144 | Rejected: CFG-145 is newer and says TechStyle relies on Quick Add and wants to show it in the demo. Product should confirm |
+| Ticket  | Reason                                                                                                                      |
+| ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| CFG-144 | Rejected: CFG-145 is newer and says TechStyle relies on Quick Add and wants to show it in the demo. Product should confirm  |
+| CFG-153 | A 2–3 week feature (the ticket itself asks why it's in this sprint). Doesn't fit the time box and isn't needed for the demo |
 
 ### Tickets That Need Clarification
 
@@ -49,6 +50,7 @@ Our board labels aren't always right. List tickets where you disagreed with the 
 | CFG-147 | 🔴 Critical    | 🟠 High     | Only names with special characters trigger it; configurations without a name (or with a plain one) share fine. Customers hit it, but it doesn't block the demo |
 | CFG-158 | 🟠 High        | 🟡 Medium   | Only extra mock requests while typing a draft name; no visible lag or flicker                                                                                  |
 | CFG-152 | ⚪ Low         | 🔴 Critical | The color can't be chosen without a mouse, and TechStyle's MSA has accessibility clauses. Shipping the demo like this is a contract risk                       |
+| CFG-153 | 🟡 Medium      | ⚪ Low      | A 2–3 week feature with no demo dependency; belongs in roadmap planning, not this sprint                                                                       |
 
 ### Tickets Where You Stopped to Ask Instead of Implementing
 
