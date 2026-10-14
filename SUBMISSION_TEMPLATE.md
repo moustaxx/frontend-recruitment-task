@@ -26,10 +26,11 @@ List the ticket numbers you worked on, in the order you addressed them:
 
 List tickets you intentionally skipped and why:
 
-| Ticket  | Reason                                                                                                                      |
-| ------- | --------------------------------------------------------------------------------------------------------------------------- |
-| CFG-144 | Rejected: CFG-145 is newer and says TechStyle relies on Quick Add and wants to show it in the demo. Product should confirm  |
-| CFG-153 | A 2–3 week feature (the ticket itself asks why it's in this sprint). Doesn't fit the time box and isn't needed for the demo |
+| Ticket  | Reason                                                                                                                       |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| CFG-144 | Rejected: CFG-145 is newer and says TechStyle relies on Quick Add and wants to show it in the demo. Product should confirm   |
+| CFG-153 | A 2–3 week feature (the ticket itself asks why it's in this sprint). Doesn't fit the time box and isn't needed for the demo  |
+| CFG-155 | Nice-to-have; every color in the stylesheet needs a dark variant. Good next-sprint candidate, since TechStyle's site is dark |
 
 ### Tickets That Need Clarification
 
