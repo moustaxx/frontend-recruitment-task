@@ -13,7 +13,8 @@ List the ticket numbers you worked on, in the order you addressed them:
 1. **CFG-142**: Fixed the price-response guard, which discarded every response. Only the latest request's response is applied now.
 2. **CFG-147**: Fixed share links that crashed the app on non-Latin-1 names or failed to open when the encoded data contained `+`.
 3. **CFG-148**: Fixed the crash when turning off "Include Packaging" with Gift Wrap selected. Dependent add-ons are now removed for every option type.
-4. ...
+4. **CFG-158**: Marcus's fix would be a no-op (`product` is already stable, `currentConfig` already memoized). The real cause: typing a draft name re-ran validation, preview and price. These now ignore the name.
+5. ...
 
 ### Tickets I Deprioritized
 
@@ -39,6 +40,7 @@ Our board labels aren't always right. List tickets where you disagreed with the 
 | Ticket  | Label on board | Your read | Why                                                                                                                                                            |
 | ------- | -------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | CFG-147 | 🔴 Critical    | 🟠 High   | Only names with special characters trigger it; configurations without a name (or with a plain one) share fine. Customers hit it, but it doesn't block the demo |
+| CFG-158 | 🟠 High        | 🟡 Medium | Only extra mock requests while typing a draft name; no visible lag or flicker                                                                                  |
 
 ### Tickets Where You Stopped to Ask Instead of Implementing
 

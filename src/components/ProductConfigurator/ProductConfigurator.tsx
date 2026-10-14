@@ -164,7 +164,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
   // Derived State
   // -------------------------------------------------------------------------
 
-  const currentConfig: Configuration = useMemo(
+  const baseConfig: Configuration = useMemo(
     () => ({
       id: configId,
       productId: product.id,
@@ -173,9 +173,13 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
       quantity,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      name: draftName || undefined,
     }),
-    [configId, product.id, selections, selectedAddOns, quantity, draftName],
+    [configId, product.id, selections, selectedAddOns, quantity],
+  );
+
+  const currentConfig: Configuration = useMemo(
+    () => ({ ...baseConfig, name: draftName || undefined }),
+    [baseConfig, draftName],
   );
 
   const {
@@ -183,7 +187,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
     formattedTotal,
     isLoading: isPriceLoading,
     error: priceError,
-  } = usePriceCalculation(currentConfig, product);
+  } = usePriceCalculation(baseConfig, product);
 
   const appliedDiscount = getAppliedDiscountPercentage(quantity);
   const nextTier = getNextDiscountTier(quantity);
@@ -226,7 +230,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
 
     const validate = async () => {
       try {
-        const result = await validateConfiguration(currentConfig, product);
+        const result = await validateConfiguration(baseConfig, product);
         if (!cancelled) {
           setValidation(result);
           setIsValid(true);
@@ -241,14 +245,14 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [currentConfig, product]);
+  }, [baseConfig, product]);
 
   useEffect(() => {
     let cancelled = false;
 
     const updatePreview = async () => {
       try {
-        const preview = await generatePreview(currentConfig, product);
+        const preview = await generatePreview(baseConfig, product);
         if (!cancelled) {
           setPreviewUrl(preview.imageUrl);
         }
@@ -262,7 +266,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [currentConfig, product]);
+  }, [baseConfig, product]);
 
   useEffect(() => {
     if (onConfigurationChange) {
