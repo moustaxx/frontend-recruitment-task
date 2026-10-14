@@ -387,11 +387,47 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
     }
   }, [validation, price, currentConfig, onAddToCart]);
 
+  const canQuickAdd = !readOnly && !!validation?.valid && !isPriceLoading;
+
   const handleQuickAdd = useCallback(() => {
-    if (price && onAddToCart) {
+    if (canQuickAdd && price && onAddToCart) {
       onAddToCart(currentConfig, price);
     }
-  }, [price, currentConfig, onAddToCart]);
+  }, [canQuickAdd, price, currentConfig, onAddToCart]);
+
+  useEffect(() => {
+    if (showDraftModal || showShareModal) return;
+
+    let pending = false;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        pending = true;
+      }
+    };
+
+    // On release, so a held Enter can't dismiss a host alert; macOS skips Enter keyup under Cmd
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (pending && (e.key === 'Enter' || e.key === 'Meta')) {
+        pending = false;
+        handleQuickAdd();
+      }
+    };
+
+    const handleBlur = () => {
+      pending = false;
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleBlur);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [handleQuickAdd, showDraftModal, showShareModal]);
 
   const handleCopyShareUrl = useCallback(() => {
     navigator.clipboard
@@ -880,9 +916,10 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
               <button
                 className="quick-add-btn"
                 onClick={handleQuickAdd}
-                disabled={readOnly || !validation?.valid}
+                disabled={!canQuickAdd}
+                aria-keyshortcuts="Control+Enter Meta+Enter"
               >
-                ⚡ Quick Add to Cart
+                ⚡ Quick Add to Cart <kbd>Ctrl+Enter</kbd>
               </button>
             </div>
           </div>

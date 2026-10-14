@@ -14,7 +14,8 @@ List the ticket numbers you worked on, in the order you addressed them:
 2. **CFG-147**: Fixed share links that crashed the app on non-Latin-1 names or failed to open when the encoded data contained `+`.
 3. **CFG-148**: Fixed the crash when turning off "Include Packaging" with Gift Wrap selected. Dependent add-ons are now removed for every option type.
 4. **CFG-158**: Marcus's fix would be a no-op (`product` is already stable, `currentConfig` already memoized). The real cause: typing a draft name re-ran validation, preview and price. These now ignore the name.
-5. ...
+5. **CFG-145**: Added a Ctrl/Cmd+Enter shortcut for Quick Add, shown on the button. Quick Add is now also blocked while the price is recalculating, so it can't add a stale price.
+6. ...
 
 ### Tickets I Deprioritized
 
