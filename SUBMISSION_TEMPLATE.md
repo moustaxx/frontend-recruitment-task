@@ -11,7 +11,7 @@ Total time: **\_\_** (approximate)
 List the ticket numbers you worked on, in the order you addressed them:
 
 1. **CFG-142**: Fixed the price-response guard, which discarded every response. Only the latest request's response is applied now.
-2. **CFG-XXX**: [Brief description of what you did]
+2. **CFG-147**: Fixed share links that crashed the app on non-Latin-1 names or failed to open when the encoded data contained `+`.
 3. ...
 
 ### Tickets I Deprioritized
@@ -35,9 +35,9 @@ List any tickets where you couldn't proceed due to ambiguity:
 
 Our board labels aren't always right. List tickets where you disagreed with the label (e.g. a Low that's actually High, a High that's actually Low, a Medium that's actually Unclear) and explain why. If you didn't disagree with any, say so.
 
-| Ticket  | Label on board | Your read    | Why                                         |
-| ------- | -------------- | ------------ | ------------------------------------------- |
-| CFG-XXX | e.g. ⚪ Low    | e.g. 🟠 High | [What in the description changed your read] |
+| Ticket  | Label on board | Your read | Why                                                                                                                                                            |
+| ------- | -------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CFG-147 | 🔴 Critical    | 🟠 High   | Only names with special characters trigger it; configurations without a name (or with a plain one) share fine. Customers hit it, but it doesn't block the demo |
 
 ### Tickets Where You Stopped to Ask Instead of Implementing
 
@@ -73,9 +73,21 @@ Request ordering is a client concern, so it shouldn't depend on a server field. 
 
 ---
 
-#### Issue 2: [Title]
+#### Issue 2: Share links crash or fail to open
 
-[Same structure as above]
+**Ticket(s):** CFG-147
+
+**What was the bug?**
+`btoa` throws on non-Latin-1 characters, so a name like `Żółć test 🎨` crashed the whole widget when the Share modal opened. The base64 was also put into the URL unescaped, so any `+` came back as a space and the link wouldn't decode (only with certain characters in the name, e.g. `?>`).
+
+**How did you find it?**
+Read the share code path and reproduced both bugs in Node. Nothing in it depends on the build, so the "dev-only flake" theory doesn't hold.
+
+**How did you fix it?**
+Encode via UTF-8 bytes into base64url. The decoder also accepts the old format, so existing links still open.
+
+**Why this approach?**
+It fixes both bugs in one place (`api.ts`) and keeps old links working. `encodeURIComponent` alone wouldn't fix the crash.
 
 ---
 
@@ -94,10 +106,15 @@ Brief description of any other modifications:
 
 List any issues you noticed but intentionally left:
 
-| Issue                                              | Why I Left It                                                                                                  |
-| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `PriceResponse.timestamp` is a counter, not a time | Misleading name; the client no longer uses it                                                                  |
-| Changing the draft name triggers a price refetch   | `draftName` is part of `currentConfig`; the price stays correct, but splitting it out belongs in the component |
+| Issue                                                                                     | Why I Left It                                                                                                              |
+| ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `PriceResponse.timestamp` is a counter, not a time                                        | Misleading name; the client no longer uses it                                                                              |
+| CFG-147: the configuration name from a share link isn't restored                          | Existing lint errors in the component block any commit touching it                                                         |
+| CFG-147: decoded selections aren't validated against the product                          | Edge case (old or hand-edited links); validation already flags it                                                          |
+| No error boundary around the widget                                                       | Out of scope; worth adding before the demo                                                                                 |
+| Misleading comment in `mockProductSimple` (`10" Large`)                                   | Only option values are encoded, not labels                                                                                 |
+| Effects in the component call `setState` synchronously (URL decode, share URL, `isDirty`) | Causes cascading renders. URL state belongs in lazy `useState` initialisers, the rest should be derived. Separate refactor |
+| Changing the draft name triggers a price refetch                                          | `draftName` is part of `currentConfig`; the price stays correct, but splitting it out belongs in the component             |
 
 ### Potential Improvements for the Future
 
@@ -123,7 +140,7 @@ List any assumptions you made to proceed:
 
 1. CFG-142: I couldn't reproduce the "correct price flashes, then reverts" part. In the original code no response could ever pass the guard, so the real price never reached the UI. The fix makes it moot; if it still happens, I'd ask Jamie for a screen recording.
 
-2. [Assumption 2]
+2. CFG-147: "Worked on prod a month ago" likely means earlier links had ASCII names and no `+`. I'd ask Jamie for the customer's link to confirm it now opens.
 
 ---
 

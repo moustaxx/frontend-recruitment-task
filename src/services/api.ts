@@ -209,6 +209,23 @@ function formatCurrency(amount: number, currency: string): string {
   }).format(amount);
 }
 
+function toBase64Url(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('');
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function fromBase64Url(encoded: string): string {
+  const base64 = encoded.replace(/ /g, '+').replace(/-/g, '+').replace(/_/g, '/');
+  const binary = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='));
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    return binary;
+  }
+}
+
 /**
  * Encode configuration to URL-safe string
  */
@@ -220,7 +237,7 @@ export function encodeConfigurationToUrl(config: Configuration): string {
     n: config.name,
   });
 
-  return btoa(data);
+  return toBase64Url(data);
 }
 
 /**
@@ -228,7 +245,7 @@ export function encodeConfigurationToUrl(config: Configuration): string {
  */
 export function decodeConfigurationFromUrl(encoded: string): Partial<Configuration> | null {
   try {
-    const data = JSON.parse(atob(encoded));
+    const data = JSON.parse(fromBase64Url(encoded));
     return {
       selections: data.s || {},
       addOns: data.a || [],
