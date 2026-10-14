@@ -37,6 +37,7 @@ List any tickets where you couldn't proceed due to ambiguity:
 | Ticket  | Question                                                                                                                                                                                   |
 | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | CFG-150 | Couldn't reproduce: both products have 5 colors, which fit in one row even at 320px. Which device and product? Need the screenshot. Also, the JS sets `--color-columns` but no CSS uses it |
+| CFG-146 | Couldn't reproduce: times are stored in UTC (ISO) and shown in local time. Which screen, timezone and browser? A screenshot would help                                                     |
 
 ### Tickets With a Misleading Priority Label
 
