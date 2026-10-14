@@ -119,15 +119,25 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
   // State
   // -------------------------------------------------------------------------
 
+  const [urlConfiguration] = useState(() => {
+    const encodedConfig = new URLSearchParams(window.location.search).get('config');
+    return encodedConfig ? decodeConfigurationFromUrl(encodedConfig) : null;
+  });
+
   const [selections, setSelections] = useState<Record<string, string | number | boolean>>(
-    () => initialConfiguration?.selections || getDefaultSelections(product),
+    () =>
+      urlConfiguration?.selections ||
+      initialConfiguration?.selections ||
+      getDefaultSelections(product),
   );
 
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>(
-    () => initialConfiguration?.addOns || [],
+    () => urlConfiguration?.addOns || initialConfiguration?.addOns || [],
   );
 
-  const [quantity, setQuantity] = useState<number>(() => initialConfiguration?.quantity || 1);
+  const [quantity, setQuantity] = useState<number>(
+    () => urlConfiguration?.quantity || initialConfiguration?.quantity || 1,
+  );
 
   const [configId] = useState<string>(() => initialConfiguration?.id || generateConfigId());
 
@@ -145,8 +155,6 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string>(product.imageUrl);
 
   const [error, setError] = useState<string | null>(null);
-
-  const [shareUrl, setShareUrl] = useState<string>('');
 
   const containerRef = useRef<HTMLDivElement>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
@@ -179,6 +187,12 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
 
   const appliedDiscount = getAppliedDiscountPercentage(quantity);
   const nextTier = getNextDiscountTier(quantity);
+
+  const shareUrl = useMemo(() => {
+    if (!showShareModal) return '';
+    const encoded = encodeConfigurationToUrl(currentConfig);
+    return `${window.location.origin}${window.location.pathname}?config=${encoded}`;
+  }, [showShareModal, currentConfig]);
 
   const availableAddOns = useMemo(() => {
     const map = new Map<string, AddOn>();
@@ -217,7 +231,9 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
           setValidation(result);
           setIsValid(true);
         }
-      } catch {}
+      } catch {
+        if (!cancelled) setError(ERROR_CODES.UNKNOWN);
+      }
     };
 
     validate();
@@ -252,7 +268,6 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
     if (onConfigurationChange) {
       onConfigurationChange(currentConfig);
     }
-    setIsDirty(true);
   }, [selections, selectedAddOns, quantity]);
 
   useEffect(() => {
@@ -260,28 +275,6 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
       getAllDrafts().then(setDrafts);
     }
   }, [showDraftModal]);
-
-  useEffect(() => {
-    if (showShareModal) {
-      const encoded = encodeConfigurationToUrl(currentConfig);
-      const url = `${window.location.origin}${window.location.pathname}?config=${encoded}`;
-      setShareUrl(url);
-    }
-  }, [showShareModal, currentConfig]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const encodedConfig = params.get('config');
-
-    if (encodedConfig) {
-      const decoded = decodeConfigurationFromUrl(encodedConfig);
-      if (decoded) {
-        if (decoded.selections) setSelections(decoded.selections);
-        if (decoded.addOns) setSelectedAddOns(decoded.addOns);
-        if (decoded.quantity) setQuantity(decoded.quantity);
-      }
-    }
-  }, []);
 
   // -------------------------------------------------------------------------
   // Event Handlers
@@ -293,6 +286,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
         ...prev,
         [optionId]: value,
       }));
+      setIsDirty(true);
 
       const option = product.options.find((o) => o.id === optionId);
       // Clean up any dependent add-ons whose requirement is no longer met.
@@ -324,6 +318,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
         return;
       }
 
+      setIsDirty(true);
       setSelectedAddOns((prev) => {
         if (prev.includes(addOnId)) {
           return prev.filter((id) => id !== addOnId);
@@ -343,6 +338,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
 
       const clampedQuantity = Math.max(min, Math.min(max, newQuantity));
       setQuantity(clampedQuantity);
+      setIsDirty(true);
     },
     [product.options],
   );
