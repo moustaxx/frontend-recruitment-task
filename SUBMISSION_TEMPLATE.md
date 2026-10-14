@@ -16,7 +16,8 @@ List the ticket numbers you worked on, in the order you addressed them:
 4. **CFG-158**: Marcus's fix would be a no-op (`product` is already stable, `currentConfig` already memoized). The real cause: typing a draft name re-ran validation, preview and price. These now ignore the name.
 5. **CFG-145**: Added a Ctrl/Cmd+Enter shortcut for Quick Add, shown on the button. Quick Add is now also blocked while the price is recalculating, so it can't add a stale price.
 6. **CFG-152**: Color swatches are now focusable buttons with arrow-key navigation. Modals close on Escape wherever focus is and always return focus to their trigger. Added missing focus styles.
-7. ...
+7. **CFG-143**: Both suspects from the ticket were real. The resize listener was never removed, and every change downloaded a new preview image because of a `Date.now()` cache-buster. Added the cleanup and dropped the timestamp, so the image is cached.
+8. ...
 
 ### Tickets I Deprioritized
 
