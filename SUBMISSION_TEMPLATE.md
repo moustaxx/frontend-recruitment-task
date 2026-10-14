@@ -15,7 +15,8 @@ List the ticket numbers you worked on, in the order you addressed them:
 3. **CFG-148**: Fixed the crash when turning off "Include Packaging" with Gift Wrap selected. Dependent add-ons are now removed for every option type.
 4. **CFG-158**: Marcus's fix would be a no-op (`product` is already stable, `currentConfig` already memoized). The real cause: typing a draft name re-ran validation, preview and price. These now ignore the name.
 5. **CFG-145**: Added a Ctrl/Cmd+Enter shortcut for Quick Add, shown on the button. Quick Add is now also blocked while the price is recalculating, so it can't add a stale price.
-6. ...
+6. **CFG-152**: Color swatches are now focusable buttons with arrow-key navigation. Modals close on Escape wherever focus is and always return focus to their trigger. Added missing focus styles.
+7. ...
 
 ### Tickets I Deprioritized
 
@@ -37,10 +38,11 @@ List any tickets where you couldn't proceed due to ambiguity:
 
 Our board labels aren't always right. List tickets where you disagreed with the label (e.g. a Low that's actually High, a High that's actually Low, a Medium that's actually Unclear) and explain why. If you didn't disagree with any, say so.
 
-| Ticket  | Label on board | Your read | Why                                                                                                                                                            |
-| ------- | -------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CFG-147 | 🔴 Critical    | 🟠 High   | Only names with special characters trigger it; configurations without a name (or with a plain one) share fine. Customers hit it, but it doesn't block the demo |
-| CFG-158 | 🟠 High        | 🟡 Medium | Only extra mock requests while typing a draft name; no visible lag or flicker                                                                                  |
+| Ticket  | Label on board | Your read   | Why                                                                                                                                                            |
+| ------- | -------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CFG-147 | 🔴 Critical    | 🟠 High     | Only names with special characters trigger it; configurations without a name (or with a plain one) share fine. Customers hit it, but it doesn't block the demo |
+| CFG-158 | 🟠 High        | 🟡 Medium   | Only extra mock requests while typing a draft name; no visible lag or flicker                                                                                  |
+| CFG-152 | ⚪ Low         | 🔴 Critical | The color can't be chosen without a mouse, and TechStyle's MSA has accessibility clauses. Shipping the demo like this is a contract risk                       |
 
 ### Tickets Where You Stopped to Ask Instead of Implementing
 
@@ -133,6 +135,7 @@ List any issues you noticed but intentionally left:
 | CFG-147: decoded selections aren't validated against the product | Edge case (old or hand-edited links); validation already flags it                                              |
 | No error boundary around the widget                              | Out of scope; worth adding before the demo                                                                     |
 | Misleading comment in `mockProductSimple` (`10" Large`)          | Only option values are encoded, not labels                                                                     |
+| CFG-152: no focus trap in modals                                 | Escape and focus return work; full trap is beyond the audit's list                                             |
 | Changing the draft name triggers a price refetch                 | `draftName` is part of `currentConfig`; the price stays correct, but splitting it out belongs in the component |
 
 ### Potential Improvements for the Future
@@ -160,6 +163,8 @@ List any assumptions you made to proceed:
 1. CFG-142: I couldn't reproduce the "correct price flashes, then reverts" part. In the original code no response could ever pass the guard, so the real price never reached the UI. The fix makes it moot; if it still happens, I'd ask Jamie for a screen recording.
 
 2. CFG-147: "Worked on prod a month ago" likely means earlier links had ASCII names and no `+`. I'd ask Jamie for the customer's link to confirm it now opens.
+
+3. CFG-152: There's no custom dropdown; options use native `<select>`, which already supports arrow keys. I took item 4 to mean the color picker (`role="radiogroup"`), which now has arrow-key navigation.
 
 ---
 

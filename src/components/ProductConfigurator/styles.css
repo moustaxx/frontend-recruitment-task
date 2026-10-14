@@ -108,6 +108,7 @@
 .color-swatch {
   width: 36px;
   height: 36px;
+  padding: 0;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
@@ -614,13 +615,13 @@
 .btn:focus,
 .option-select:focus,
 .quantity-input:focus,
-.toggle-switch:focus {
+.quantity-btn:focus,
+.toggle-switch:focus,
+.color-swatch:focus,
+.modal-close:focus {
   outline: 2px solid #3498db;
   outline-offset: 2px;
 }
-
-/* Missing focus style for color swatches - accessibility issue */
-/* .color-swatch:focus { } */
 
 /* Draft List in Modal */
 .draft-list {

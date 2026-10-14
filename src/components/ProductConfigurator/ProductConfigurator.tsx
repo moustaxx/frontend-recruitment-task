@@ -444,20 +444,59 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
     } else {
       setShowShareModal(false);
     }
-
-    if (lastFocusedElement.current) {
-      lastFocusedElement.current.focus();
-    }
   }, []);
 
-  const handleModalKeyDown = useCallback(
-    (e: React.KeyboardEvent, modalType: 'draft' | 'share') => {
+  const handleModalOpen = (e: React.MouseEvent<HTMLElement>, modalType: 'draft' | 'share') => {
+    lastFocusedElement.current = e.currentTarget;
+    if (modalType === 'draft') {
+      setShowDraftModal(true);
+    } else {
+      setShowShareModal(true);
+    }
+  };
+
+  useEffect(() => {
+    if (!showDraftModal && !showShareModal) {
+      lastFocusedElement.current?.focus();
+      lastFocusedElement.current = null;
+      return;
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        handleModalClose(modalType);
+        setShowDraftModal(false);
+        setShowShareModal(false);
       }
-    },
-    [handleModalClose],
-  );
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showDraftModal, showShareModal]);
+
+  const handleSwatchKeyDown = (
+    e: React.KeyboardEvent<HTMLElement>,
+    optionId: string,
+    choices: NonNullable<ProductOption['choices']>,
+    index: number,
+  ) => {
+    let next: number;
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        next = (index + 1) % choices.length;
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        next = (index - 1 + choices.length) % choices.length;
+        break;
+      default:
+        return;
+    }
+
+    e.preventDefault();
+    (e.currentTarget.parentElement?.children[next] as HTMLElement | undefined)?.focus();
+    handleOptionChange(optionId, choices[next].value);
+  };
 
   const handleDiscardChanges = useCallback(() => {
     setSelections(getDefaultSelections(product));
@@ -513,15 +552,25 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
           role="radiogroup"
           aria-label={option.name}
         >
-          {option.choices?.map((choice, index) => (
-            <div
+          {option.choices?.map((choice, index, choices) => (
+            <button
+              type="button"
               key={index}
               className={`color-swatch ${currentValue === choice.value ? 'selected' : ''}`}
               style={{ backgroundColor: choice.colorHex }}
-              onClick={() => !readOnly && handleOptionChange(option.id, choice.value)}
+              onClick={() => handleOptionChange(option.id, choice.value)}
+              onKeyDown={(e) => handleSwatchKeyDown(e, option.id, choices, index)}
+              disabled={readOnly}
               title={choice.label}
               role="radio"
+              aria-label={choice.label}
               aria-checked={currentValue === choice.value}
+              tabIndex={
+                currentValue === choice.value ||
+                (index === 0 && !choices.some((c) => c.value === currentValue))
+                  ? 0
+                  : -1
+              }
             />
           ))}
         </div>
@@ -587,7 +636,7 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
             aria-checked={currentValue}
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (!readOnly && (e.key === 'Enter' || e.key === ' ')) {
                 e.preventDefault();
                 handleOptionChange(option.id, !currentValue);
               }
@@ -711,18 +760,23 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
     if (!showDraftModal) return null;
 
     return (
-      <div
-        className="modal-overlay"
-        onClick={() => handleModalClose('draft')}
-        onKeyDown={(e) => handleModalKeyDown(e, 'draft')}
-      >
-        <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-overlay" onClick={() => handleModalClose('draft')}>
+        <div
+          className="modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="draft-modal-title"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="modal-header">
-            <h3 className="modal-title">Saved Drafts</h3>
+            <h3 className="modal-title" id="draft-modal-title">
+              Saved Drafts
+            </h3>
             <button
               className="modal-close"
               onClick={() => handleModalClose('draft')}
               aria-label="Close modal"
+              autoFocus
             >
               ×
             </button>
@@ -793,18 +847,23 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
     if (!showShareModal) return null;
 
     return (
-      <div
-        className="modal-overlay"
-        onClick={() => handleModalClose('share')}
-        onKeyDown={(e) => handleModalKeyDown(e, 'share')}
-      >
-        <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-overlay" onClick={() => handleModalClose('share')}>
+        <div
+          className="modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="share-modal-title"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="modal-header">
-            <h3 className="modal-title">Share Configuration</h3>
+            <h3 className="modal-title" id="share-modal-title">
+              Share Configuration
+            </h3>
             <button
               className="modal-close"
               onClick={() => handleModalClose('share')}
               aria-label="Close modal"
+              autoFocus
             >
               ×
             </button>
@@ -844,22 +903,10 @@ export const ProductConfigurator: React.FC<ProductConfiguratorProps> = ({
           <p className="configurator-description">{product.description}</p>
         </div>
         <div className="configurator-actions">
-          <button
-            className="btn btn-secondary"
-            onClick={() => {
-              lastFocusedElement.current = document.activeElement as HTMLElement;
-              setShowDraftModal(true);
-            }}
-          >
+          <button className="btn btn-secondary" onClick={(e) => handleModalOpen(e, 'draft')}>
             Drafts
           </button>
-          <button
-            className="btn btn-secondary"
-            onClick={() => {
-              lastFocusedElement.current = document.activeElement as HTMLElement;
-              setShowShareModal(true);
-            }}
-          >
+          <button className="btn btn-secondary" onClick={(e) => handleModalOpen(e, 'share')}>
             Share
           </button>
           {isDirty && (
