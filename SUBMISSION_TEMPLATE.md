@@ -142,8 +142,8 @@ List any issues you noticed but intentionally left:
 
 If you had more time, what would you improve?
 
-1. [Improvement 1]
-2. [Improvement 2]
+1. Split `ProductConfigurator` (~1000 lines, all state local) into smaller components and hooks (options, add-ons, summary, modals, drafts/share). Most bugs here came from logic spread across one file.
+2. Fix the remaining ESLint issues: `exhaustive-deps` on the `onConfigurationChange` effect and two `any`s in `types.ts`. `pnpm lint` still fails on them.
 
 ---
 
