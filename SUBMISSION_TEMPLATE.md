@@ -18,7 +18,8 @@ List the ticket numbers you worked on, in the order you addressed them:
 6. **CFG-152**: Color swatches are now focusable buttons with arrow-key navigation. Modals close on Escape wherever focus is and always return focus to their trigger. Added missing focus styles.
 7. **CFG-143**: Both suspects from the ticket were real. The resize listener was never removed, and every change downloaded a new preview image because of a `Date.now()` cache-buster. Added the cleanup and dropped the timestamp, so the image is cached.
 8. **CFG-151**: Each error code now maps to a plain-language message with a next step. The raw code is no longer shown.
-9. ...
+9. **CFG-149**: No code change needed. The dimmed price and "Calculating..." were already there but ended early, because `isLoading` cleared after any response. Fixed in CFG-142, verified in the browser. I didn't take Marcus's `'...'`: it would hide the price on every change and shift the layout.
+10. ...
 
 ### Tickets I Deprioritized
 
