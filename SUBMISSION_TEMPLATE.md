@@ -137,16 +137,17 @@ Brief description of any other modifications:
 
 List any issues you noticed but intentionally left:
 
-| Issue                                                            | Why I Left It                                                                                                        |
-| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `PriceResponse.timestamp` is a counter, not a time               | Misleading name; the client no longer uses it                                                                        |
-| CFG-147: the configuration name from a share link isn't restored | Out of scope for CFG-147                                                                                             |
-| CFG-147: decoded selections aren't validated against the product | Edge case (old or hand-edited links); validation already flags it                                                    |
-| No error boundary around the widget                              | Out of scope; worth adding before the demo                                                                           |
-| Misleading comment in `mockProductSimple` (`10" Large`)          | Only option values are encoded, not labels                                                                           |
-| CFG-152: no focus trap in modals                                 | Escape and focus return work; full trap is beyond the audit's list                                                   |
-| CFG-151: the error banner never clears                           | `setError(null)` is never called, so the banner stays after a successful retry. Needs a decision on when to clear it |
-| Changing the draft name triggers a price refetch                 | `draftName` is part of `currentConfig`; the price stays correct, but splitting it out belongs in the component       |
+| Issue                                                                   | Why I Left It                                                                                                        |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `PriceResponse.timestamp` is a counter, not a time                      | Misleading name; the client no longer uses it                                                                        |
+| CFG-147: the configuration name from a share link isn't restored        | Out of scope for CFG-147                                                                                             |
+| CFG-147: decoded selections aren't validated against the product        | Edge case (old or hand-edited links); validation already flags it                                                    |
+| Header actions (Drafts / Share / Discard) overflow the screen on mobile | Layout bug outside the backlog; at 320px Share ends past the viewport, and Discard adds more once the config changes |
+| No error boundary around the widget                                     | Out of scope; worth adding before the demo                                                                           |
+| Misleading comment in `mockProductSimple` (`10" Large`)                 | Only option values are encoded, not labels                                                                           |
+| CFG-152: no focus trap in modals                                        | Escape and focus return work; full trap is beyond the audit's list                                                   |
+| CFG-151: the error banner never clears                                  | `setError(null)` is never called, so the banner stays after a successful retry. Needs a decision on when to clear it |
+| Changing the draft name triggers a price refetch                        | `draftName` is part of `currentConfig`; the price stays correct, but splitting it out belongs in the component       |
 
 ### Potential Improvements for the Future
 
