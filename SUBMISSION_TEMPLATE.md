@@ -10,7 +10,7 @@ Total time: **\_\_** (approximate)
 
 List the ticket numbers you worked on, in the order you addressed them:
 
-1. **CFG-XXX**: [Brief description of what you did]
+1. **CFG-142**: Fixed the price-response guard, which discarded every response. Only the latest request's response is applied now.
 2. **CFG-XXX**: [Brief description of what you did]
 3. ...
 
@@ -55,25 +55,21 @@ If a ticket was ambiguous enough that the right move was to escalate / ask PM / 
 
 Describe the most important bugs you identified:
 
-#### Issue 1: [Title]
+#### Issue 1: Price stuck at $0.00
 
-**Ticket(s):** CFG-XXX
+**Ticket(s):** CFG-142
 
 **What was the bug?**
-
-[Describe the root cause]
+The guard in `usePriceCalculation` compared `Date.now()` with `PriceResponse.timestamp`, which is actually a request counter (1, 2, 3…). The check never passed, so no price reached state.
 
 **How did you find it?**
-
-[Your debugging process]
+The ticket pointed at the hook's guard. I traced `timestamp` back to `api.ts`, saw it was `++requestCounter`, and confirmed in the browser.
 
 **How did you fix it?**
-
-[Explain your solution]
+Rewrote the hook with the standard effect + `ignore` cleanup pattern. Only the latest effect run can update state, and `isLoading` is derived from the inputs of the last result instead of being set inside the effect. The file already had `set-state-in-effect` lint errors that blocked any commit touching it, so the rewrite was needed anyway. I also removed the unused `useDebouncedPriceCalculation` and `refetch`.
 
 **Why this approach?**
-
-[Any alternatives you considered]
+Request ordering is a client concern, so it shouldn't depend on a server field. A one-line fix (client-side request counter) also worked, but it couldn't be committed without suppressing lint. I left out `AbortController` and debouncing to keep the scope small.
 
 ---
 
@@ -98,9 +94,10 @@ Brief description of any other modifications:
 
 List any issues you noticed but intentionally left:
 
-| Issue   | Why I Left It                                         |
-| ------- | ----------------------------------------------------- |
-| [Issue] | [Reason - out of scope, time, needs discussion, etc.] |
+| Issue                                              | Why I Left It                                                                                                  |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `PriceResponse.timestamp` is a counter, not a time | Misleading name; the client no longer uses it                                                                  |
+| Changing the draft name triggers a price refetch   | `draftName` is part of `currentConfig`; the price stays correct, but splitting it out belongs in the component |
 
 ### Potential Improvements for the Future
 
@@ -124,7 +121,8 @@ Questions you would ask in a real scenario:
 
 List any assumptions you made to proceed:
 
-1. [Assumption 1]
+1. CFG-142: I couldn't reproduce the "correct price flashes, then reverts" part. In the original code no response could ever pass the guard, so the real price never reached the UI. The fix makes it moot; if it still happens, I'd ask Jamie for a screen recording.
+
 2. [Assumption 2]
 
 ---
